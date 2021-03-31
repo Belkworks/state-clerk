@@ -133,4 +133,8 @@ class Store
         Action, Payload = @resolveData Action, Payload
         A = @Options.actions[Action]
         error 'failed to find action: '..Action unless A
-        spawn -> A Payload
+        if spawn
+            spawn -> A @, Payload
+        else A @, Payload
+
+        nil

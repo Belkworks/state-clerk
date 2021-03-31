@@ -191,9 +191,14 @@ do
       if not (A) then
         error('failed to find action: ' .. Action)
       end
-      return spawn(function()
-        return A(Payload)
-      end)
+      if spawn then
+        spawn(function()
+          return A(self, Payload)
+        end)
+      else
+        A(self, Payload)
+      end
+      return nil
     end
   }
   _base_0.__index = _base_0
