@@ -30,6 +30,12 @@ class Store
             return G.Value
         else error 'unknown getter: '..G
 
+    alwaysUpdate: (Name) =>
+        G = @getterTable[Name]
+        if G
+            G.Always = true
+        else error 'unknown getter: '..G
+
     updateGetterRecursive: (Name, Updated = {}) =>
         return if Updated[Name]
         Old = @getValue Name
@@ -61,7 +67,9 @@ class Store
     getValue: (Name) =>
         G = @getterTable[Name]
         if G
-            return G.Value if G.Calculated
+            if G.Calculated
+                return G.Value unless G.Always
+
             @runGetter Name
         else error 'unknown getter: '..Name
 

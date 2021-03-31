@@ -33,6 +33,14 @@ do
         return error('unknown getter: ' .. G)
       end
     end,
+    alwaysUpdate = function(self, Name)
+      local G = self.getterTable[Name]
+      if G then
+        G.Always = true
+      else
+        return error('unknown getter: ' .. G)
+      end
+    end,
     updateGetterRecursive = function(self, Name, Updated)
       if Updated == nil then
         Updated = { }
@@ -97,7 +105,9 @@ do
       local G = self.getterTable[Name]
       if G then
         if G.Calculated then
-          return G.Value
+          if not (G.Always) then
+            return G.Value
+          end
         end
         return self:runGetter(Name)
       else
