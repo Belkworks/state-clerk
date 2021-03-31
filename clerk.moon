@@ -100,6 +100,7 @@ class Store
 
         G.GetterReader = setmetatable {},
             __index: (R, K) ->
+                return if K == Key
                 G.Dependencies.Getters[K] = true
                 @getValue K
 

@@ -145,6 +145,9 @@ do
       })
       G.GetterReader = setmetatable({ }, {
         __index = function(R, K)
+          if K == Key then
+            return 
+          end
           G.Dependencies.Getters[K] = true
           return self:getValue(K)
         end,
