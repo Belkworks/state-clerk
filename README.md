@@ -111,7 +111,15 @@ later = state.getters.time
 print(earlier == later) -- true, because time was not recalculated
 ```
 
-To force recalculation of a getter, use the **runGetter** function.  
+To indicate that a getter should always be recalculated, use the **alwaysUpdate** function.  
+**NOTE:** Instead of always updating, you can return a function! See an example below.  
+**alwaysUpdate**: `store:alwaysUpdate(name) -> nil`
+```lua
+state:alwaysUpdate('time') -- time will always be recalculated
+-- this is not recommended (getters should return a function instead)
+```
+
+To force recalculation of a getter once, use the **runGetter** function.  
 **runGetter**: `store:runGetter(name) -> value?`
 ```lua
 now = state:runGetter('time') -- returns and caches the current time
@@ -131,8 +139,6 @@ canAfford = function(state)
     end
 end
 ```
-
-
 
 ## Full Example
 ```lua
