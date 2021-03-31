@@ -30,27 +30,33 @@ class Store
             return G.Value
         else error 'unknown getter: '..G
 
+    updateGetterRecursive: (Name, Updated = {}) =>
+        return if Updated[Name]
+        Old = @getValue Name
+        New = @runGetter Name
+        return if New == Old -- no need to update
+
+        for Dep, G in pairs @getterTable
+            continue if Updated[Dep]
+            if G.Dependencies.Getters[Name]
+                @runGetter Dep
+                Updated[Dep] = true
+
     updateValue: (Key) =>
         return unless @getterTable
         Updated = {}
         for Name, G in pairs @getterTable
             continue if Updated[Name]
-            RecalculateGetters = false
+
+            GetterReadsKey = false 
             for D in pairs G.Dependencies.Keys
                 if D == Key
-                    Old = @getValue Name
-                    New = @runGetter Name
-                    Updated[Name] = true
-                    RecalculateGetters = Old != New
+                    GetterReadsKey = true
                     break
 
-            if RecalculateGetters
-                for Dependent, G in pairs @getterTable
-                    print Dependent, Updated[Dependent]
-                    continue if Updated[Dependent]
-                    if G.Dependencies.Getters[Name]
-                        @runGetter Dependent
-                        Updated[Name] = true
+            if GetterReadsKey
+                @updateGetterRecursive Name, Updated
+                Updated[Name] = true
 
     getValue: (Name) =>
         G = @getterTable[Name]

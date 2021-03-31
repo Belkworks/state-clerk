@@ -33,6 +33,36 @@ do
         return error('unknown getter: ' .. G)
       end
     end,
+    updateGetterRecursive = function(self, Name, Updated)
+      if Updated == nil then
+        Updated = { }
+      end
+      if Updated[Name] then
+        return 
+      end
+      local Old = self:getValue(Name)
+      local New = self:runGetter(Name)
+      if New == Old then
+        return 
+      end
+      for Dep, G in pairs(self.getterTable) do
+        local _continue_0 = false
+        repeat
+          if Updated[Dep] then
+            _continue_0 = true
+            break
+          end
+          if G.Dependencies.Getters[Name] then
+            self:runGetter(Dep)
+            Updated[Dep] = true
+          end
+          _continue_0 = true
+        until true
+        if not _continue_0 then
+          break
+        end
+      end
+    end,
     updateValue = function(self, Key)
       if not (self.getterTable) then
         return 
@@ -45,35 +75,16 @@ do
             _continue_0 = true
             break
           end
-          local RecalculateGetters = false
+          local GetterReadsKey = false
           for D in pairs(G.Dependencies.Keys) do
             if D == Key then
-              local Old = self:getValue(Name)
-              local New = self:runGetter(Name)
-              Updated[Name] = true
-              RecalculateGetters = Old ~= New
+              GetterReadsKey = true
               break
             end
           end
-          if RecalculateGetters then
-            for Dependent, G in pairs(self.getterTable) do
-              local _continue_1 = false
-              repeat
-                print(Dependent, Updated[Dependent])
-                if Updated[Dependent] then
-                  _continue_1 = true
-                  break
-                end
-                if G.Dependencies.Getters[Name] then
-                  self:runGetter(Dependent)
-                  Updated[Name] = true
-                end
-                _continue_1 = true
-              until true
-              if not _continue_1 then
-                break
-              end
-            end
+          if GetterReadsKey then
+            self:updateGetterRecursive(Name, Updated)
+            Updated[Name] = true
           end
           _continue_0 = true
         until true
