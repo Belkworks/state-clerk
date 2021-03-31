@@ -42,7 +42,7 @@ class Store
                 @runGetter Dep
                 Updated[Dep] = true
 
-    updateValue: (Key) =>
+    updateKey: (Key) =>
         return unless @getterTable
         Updated = {}
         for Name, G in pairs @getterTable
@@ -126,7 +126,7 @@ class Store
             __index: @state -- (R, K) -> @state[K]
             __newindex: (R, K, V) ->
                 @state[K] = V
-                @updateValue K
+                @updateKey K
 
         M stateTracker, Payload
 

@@ -63,7 +63,7 @@ do
         end
       end
     end,
-    updateValue = function(self, Key)
+    updateKey = function(self, Key)
       if not (self.getterTable) then
         return 
       end
@@ -183,7 +183,7 @@ do
         __index = self.state,
         __newindex = function(R, K, V)
           self.state[K] = V
-          return self:updateValue(K)
+          return self:updateKey(K)
         end
       })
       return M(stateTracker, Payload)
