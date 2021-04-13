@@ -1,3 +1,7 @@
+local wrap
+wrap = function(F)
+  return coroutine.wrap(F)()
+end
 local copy
 copy = function(T)
   local _tbl_0 = { }
@@ -145,23 +149,23 @@ do
         }
       }
       G.StateReader = setmetatable({ }, {
-        __index = function(R, K)
+        __index = function(self, K)
           G.Dependencies.Keys[K] = true
           return self.state[K]
         end,
-        __newindex = function(R, K)
+        __newindex = function(self, K)
           return error('getter tried to set state key ' .. K)
         end
       })
       G.GetterReader = setmetatable({ }, {
-        __index = function(R, K)
+        __index = function(self, K)
           if K == Key then
             return 
           end
           G.Dependencies.Getters[K] = true
           return self:getValue(K)
         end,
-        __newindex = function(R, K)
+        __newindex = function(self, K)
           return error('getter tried to set getter key ' .. K)
         end
       })
@@ -191,7 +195,7 @@ do
       end
       local stateTracker = setmetatable({ }, {
         __index = self.state,
-        __newindex = function(R, K, V)
+        __newindex = function(self, K, V)
           self.state[K] = V
           return self:updateKey(K)
         end
@@ -204,13 +208,9 @@ do
       if not (A) then
         error('failed to find action: ' .. Action)
       end
-      if spawn then
-        spawn(function()
-          return A(self, Payload)
-        end)
-      else
-        A(self, Payload)
-      end
+      wrap(function()
+        return A(self, Payload)
+      end)
       return nil
     end
   }

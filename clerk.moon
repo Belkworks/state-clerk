@@ -1,6 +1,7 @@
 -- clerk.moon
 -- SFZILabs 2021
 
+wrap = (F) -> coroutine.wrap(F)!
 copy = (T) -> {i, v for i, v in pairs T}
 defaults = (Object, Props) ->
     Object[i] = v for i, v in pairs Props when nil == Object[i]
@@ -100,19 +101,19 @@ class Store
         }
 
         G.StateReader = setmetatable {},
-            __index: (R, K) ->
+            __index: (K) =>
                 G.Dependencies.Keys[K] = true
                 @state[K]
 
-            __newindex: (R, K) -> error 'getter tried to set state key '..K
+            __newindex: (K) => error 'getter tried to set state key '..K
 
         G.GetterReader = setmetatable {},
-            __index: (R, K) ->
+            __index: (K) =>
                 return if K == Key
                 G.Dependencies.Getters[K] = true
                 @getValue K
 
-            __newindex: (R, K) -> error 'getter tried to set getter key '..K
+            __newindex: (K) => error 'getter tried to set getter key '..K
 
         @getterTable[Key] = G
 
@@ -132,7 +133,7 @@ class Store
 
         stateTracker = setmetatable {},
             __index: @state -- (R, K) -> @state[K]
-            __newindex: (R, K, V) ->
+            __newindex: (K, V) =>
                 @state[K] = V
                 @updateKey K
 
@@ -142,8 +143,6 @@ class Store
         Action, Payload = @resolveData Action, Payload
         A = @Options.actions[Action]
         error 'failed to find action: '..Action unless A
-        if spawn
-            spawn -> A @, Payload
-        else A @, Payload
+        wrap -> A @, Payload
 
         nil
