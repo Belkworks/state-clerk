@@ -101,14 +101,14 @@ class Store
         }
 
         G.StateReader = setmetatable {},
-            __index: (K) =>
+            __index: (R, K) ->
                 G.Dependencies.Keys[K] = true
                 @state[K]
 
             __newindex: (K) => error 'getter tried to set state key '..K
 
         G.GetterReader = setmetatable {},
-            __index: (K) =>
+            __index: (R, K) ->
                 return if K == Key
                 G.Dependencies.Getters[K] = true
                 @getValue K
@@ -133,7 +133,7 @@ class Store
 
         stateTracker = setmetatable {},
             __index: @state -- (R, K) -> @state[K]
-            __newindex: (K, V) =>
+            __newindex: (W, K, V) ->
                 @state[K] = V
                 @updateKey K
 

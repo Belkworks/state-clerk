@@ -149,7 +149,7 @@ do
         }
       }
       G.StateReader = setmetatable({ }, {
-        __index = function(self, K)
+        __index = function(R, K)
           G.Dependencies.Keys[K] = true
           return self.state[K]
         end,
@@ -158,7 +158,7 @@ do
         end
       })
       G.GetterReader = setmetatable({ }, {
-        __index = function(self, K)
+        __index = function(R, K)
           if K == Key then
             return 
           end
@@ -195,7 +195,7 @@ do
       end
       local stateTracker = setmetatable({ }, {
         __index = self.state,
-        __newindex = function(self, K, V)
+        __newindex = function(W, K, V)
           self.state[K] = V
           return self:updateKey(K)
         end
