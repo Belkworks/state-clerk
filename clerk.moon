@@ -3,6 +3,7 @@
 
 wrap = (F) -> coroutine.wrap(F)!
 copy = (T) -> {i, v for i, v in pairs T}
+keycount = (T) -> #[i for i in pairs T]
 defaults = (Object, Props) ->
     Object[i] = v for i, v in pairs Props when nil == Object[i]
 
@@ -119,11 +120,16 @@ class Store
 
     resolveData: (Name, Object) =>
         if 'table' == type Name
-            if Name.type
-                T = Name.type
-                return T, with copy Name
+            if N = Name.type
+                Object = with copy Name
                     .type = nil
-            error 'couldnt resolve mutation/action (no .type)'
+                
+                if keycount(Object) == 0
+                    Object = nil
+
+                Name = N
+                    
+            else error 'couldnt resolve mutation/action (no .type)'
         Name, Object
 
     commit: (Mutation, Payload) =>

@@ -10,6 +10,18 @@ copy = function(T)
   end
   return _tbl_0
 end
+local keycount
+keycount = function(T)
+  return #(function()
+    local _accum_0 = { }
+    local _len_0 = 1
+    for i in pairs(T) do
+      _accum_0[_len_0] = i
+      _len_0 = _len_0 + 1
+    end
+    return _accum_0
+  end)()
+end
 local defaults
 defaults = function(Object, Props)
   for i, v in pairs(Props) do
@@ -173,17 +185,22 @@ do
     end,
     resolveData = function(self, Name, Object)
       if 'table' == type(Name) then
-        if Name.type then
-          local T = Name.type
-          return T, (function()
+        do
+          local N = Name.type
+          if N then
             do
               local _with_0 = copy(Name)
               _with_0.type = nil
-              return _with_0
+              Object = _with_0
             end
-          end)()
+            if keycount(Object) == 0 then
+              Object = nil
+            end
+            Name = N
+          else
+            error('couldnt resolve mutation/action (no .type)')
+          end
         end
-        error('couldnt resolve mutation/action (no .type)')
       end
       return Name, Object
     end,
